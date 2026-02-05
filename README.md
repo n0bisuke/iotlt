@@ -14,3 +14,21 @@ Continue appending (script skips already-written connpass URLs):
 # append next 20 events, starting from the oldest pages
 python3 scripts/scrape_iotlt_connpass.py --start-page 43 --end-page 1 --limit 20 --out data/iotlt_events.md
 ```
+
+## Visualization (都道府県マップ)
+
+`data/iotlt_events.md` を解析して、どの都道府県で開催したかを「日本地図（タイルマップ）」で可視化する静的サイトを `web/` に置いています。
+
+Generate JSON:
+
+```sh
+python3 scripts/build_events_json.py --in data/iotlt_events.md --out web/events.json
+```
+
+Run locally:
+
+```sh
+python3 -m http.server 8000 --directory web
+```
+
+Open `http://localhost:8000` to view.
