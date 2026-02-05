@@ -19,6 +19,7 @@ TWEET_DOMAINS = {
     "togetter.com",
     "posfie.com",
     "min.togetter.com",
+    "twilog.togetter.com",
 }
 
 SLIDE_DOMAINS = {
@@ -28,7 +29,20 @@ SLIDE_DOMAINS = {
     "docs.google.com",
 }
 
+SHORTENER_DOMAINS = {
+    "t.co",
+    "bit.ly",
+    "tinyurl.com",
+    "goo.gl",
+    "buff.ly",
+    "ow.ly",
+}
+
 _URL_RE = re.compile(r"https?://[^\s\"'<>]+")
+_BARE_URL_RE = re.compile(
+    r"(?:(?<=\s)|(?<=\()|(?<=\[)|(?<=\{)|^)"
+    r"((?:www\.)?(?:togetter\.com|posfie\.com|speakerdeck\.com|slideshare\.net|www\.slideshare\.net|docs\.google\.com)/[^\s\"'<>]+)"
+)
 
 _SLIDE_CACHE: dict[str, bool] = {}
 _SLIDE_CACHE_PATH: Optional[Path] = None
@@ -183,6 +197,27 @@ def _domain(url: str) -> str:
         return ""
 
 
+def _is_tweet_summary_url(url: str) -> bool:
+    try:
+        u = urlparse(url)
+    except Exception:
+        return False
+    host = (u.netloc or "").lower()
+    path = u.path or ""
+
+    # Togetter: accept only summary pages, exclude image/CDN subdomains.
+    if host in {"togetter.com", "min.togetter.com"}:
+        return path.startswith("/li/") or path.startswith("/id/")
+    if host.endswith(".togetter.com"):
+        return False
+
+    if host == "posfie.com" or host.endswith(".posfie.com"):
+        return True
+    if host == "twilog.togetter.com":
+        return True
+    return False
+
+
 class _ConnpassEventListParser(HTMLParser):
     def __init__(self) -> None:
         super().__init__()
@@ -202,6 +237,7 @@ class EventRow:
     vol: str
     event_type: str
     title: str
+    mode: str
     venue_name: str
     address: str
     connpass_url: str
@@ -209,6 +245,8 @@ class EventRow:
     slide_urls: list[str]
     participants: int
     date_yyyy_mm_dd: str
+    weekday_ja: str
+    time_range: str
 
 
 def _clean_text(s: str) -> str:
@@ -248,6 +286,26 @@ def _extract_date(html: str) -> str:
     return f"{m.group(1)}/{m.group(2)}/{m.group(3)}"
 
 
+def _extract_weekday_and_timerange(html: str) -> tuple[str, str]:
+    # Example: 2016/01/12(火) 19:00 ～ 22:00
+    m = re.search(
+        r"\d{4}/\d{2}/\d{2}\(([^)]+)\)\s*(\d{1,2}:\d{2})\s*(?:～|〜|-)\s*(\d{1,2}:\d{2})",
+        html,
+    )
+    if m:
+        weekday = _clean_text(m.group(1))
+        time_range = f"{m.group(2)}~{m.group(3)}"
+        return weekday, time_range
+
+    # Fallback: only weekday + start time
+    m = re.search(r"\d{4}/\d{2}/\d{2}\(([^)]+)\)\s*(\d{1,2}:\d{2})", html)
+    if m:
+        weekday = _clean_text(m.group(1))
+        return weekday, f"{m.group(2)}~"
+
+    return "", ""
+
+
 def _extract_participants(html: str) -> int:
     # "参加者（60人）" on the tab
     patterns = [
@@ -283,19 +341,56 @@ def _extract_place_name_and_address(html: str) -> tuple[str, str]:
     return venue_name, address
 
 
+def _infer_mode(venue_name: str, address: str) -> str:
+    venue = (venue_name or "").strip()
+    adr = (address or "").strip()
+    combined = f"{venue} {adr}"
+
+    online_keywords = ["オンライン", "Zoom", "Teams", "Google Meet", "YouTube", "配信", "ウェビナー"]
+    is_online = any(k in combined for k in online_keywords)
+
+    if venue == "未定" and not adr:
+        return "未定"
+    if is_online and adr and adr != "オンライン":
+        return "オンライン / 対面"
+    if is_online or venue == "オンライン" or adr == "オンライン":
+        return "オンライン"
+    if adr:
+        return "対面"
+    return "未定"
+
+
+def _normalize_candidate_url(raw: str) -> Optional[str]:
+    raw = (raw or "").strip()
+    raw = raw.strip("<>\"'")
+    raw = raw.rstrip(").,;]")
+    if not raw:
+        return None
+    if raw.startswith("//"):
+        return "https:" + raw
+    if raw.startswith("http://") or raw.startswith("https://"):
+        return raw
+    if raw.startswith("www."):
+        return "https://" + raw
+    if re.match(r"^(togetter\.com|posfie\.com|speakerdeck\.com|slideshare\.net|www\.slideshare\.net|docs\.google\.com)/", raw):
+        return "https://" + raw
+    return None
+
+
 def _extract_links(html: str) -> list[str]:
     # Extract URLs from anchor tags and plain text, remove duplicates while preserving order.
     hrefs = re.findall(r'<a\s+[^>]*href="([^"]+)"', html, re.IGNORECASE)
     hrefs += _URL_RE.findall(html)
+    hrefs += _BARE_URL_RE.findall(html)
     out: list[str] = []
     seen: set[str] = set()
     for href in hrefs:
-        href = href.strip().rstrip(").,;]")
+        href = _normalize_candidate_url(href) or ""
+        if not href:
+            continue
         if href.startswith("#"):
             continue
         if href.startswith("javascript:"):
-            continue
-        if not (href.startswith("http://") or href.startswith("https://")):
             continue
         if href in seen:
             continue
@@ -306,9 +401,20 @@ def _extract_links(html: str) -> list[str]:
 
 def _infer_type_and_vol(title: str) -> tuple[str, str]:
     vol = ""
-    m = re.search(r"\bvol\.?\s*(\d+)\b", title, re.IGNORECASE)
-    if m:
-        vol = f"vol.{m.group(1)}"
+    patterns = [
+        r"vol\.?\s*(\d+)",
+        r"IoTLTvol\.?\s*(\d+)",
+        r"IoTLT\s*vol\.?\s*(\d+)",
+        r"(?:^|[^\w])IoTLT\s*#\s*(\d+)\b",
+        r"(?:^|[^\w])[A-Za-z0-9]+IoTLT\s*#\s*(\d+)\b",
+        r"第\s*(\d+)\s*(?:回|回目)",
+        r"#\s*(\d+)\b",
+    ]
+    for pat in patterns:
+        m = re.search(pat, title, re.IGNORECASE)
+        if m:
+            vol = f"vol.{m.group(1)}"
+            break
 
     if "IoTLT" not in title and "iotlt" not in title.lower():
         return "その他", vol
@@ -335,6 +441,7 @@ def _event_row_from_url(url: str) -> EventRow:
         title = _extract_title(html)
         event_type, vol = _infer_type_and_vol(title)
         date = _extract_date(html)
+        weekday, time_range = _extract_weekday_and_timerange(html)
         participants: Optional[int]
         try:
             participants = _extract_participants(html)
@@ -348,6 +455,7 @@ def _event_row_from_url(url: str) -> EventRow:
         if participants is None:
             raise RuntimeError("could not extract participants (including fallback)")
         venue_name, address = _extract_place_name_and_address(html)
+        mode = _infer_mode(venue_name, address)
     except Exception as e:
         raise RuntimeError(f"{e} (url={url})") from e
 
@@ -356,7 +464,14 @@ def _event_row_from_url(url: str) -> EventRow:
     slide_urls_raw: list[str] = []
     for link in links:
         d = _domain(link)
-        if any(d == td or d.endswith("." + td) for td in TWEET_DOMAINS):
+        if d in SHORTENER_DOMAINS:
+            try:
+                _st, effective, _b = _run_curl(link, timeout_seconds=12, head_only=True)
+                link = effective
+                d = _domain(link)
+            except Exception:
+                pass
+        if _is_tweet_summary_url(link):
             tweet_urls.append(link)
             continue
         if any(d == sd or d.endswith("." + sd) for sd in SLIDE_DOMAINS):
@@ -374,6 +489,7 @@ def _event_row_from_url(url: str) -> EventRow:
         vol=vol,
         event_type=event_type,
         title=title,
+        mode=mode,
         venue_name=venue_name,
         address=address,
         connpass_url=url,
@@ -381,6 +497,8 @@ def _event_row_from_url(url: str) -> EventRow:
         slide_urls=slide_urls,
         participants=participants,
         date_yyyy_mm_dd=date,
+        weekday_ja=weekday,
+        time_range=time_range,
     )
 
 
@@ -410,8 +528,8 @@ def _ensure_table_header(path: Path) -> None:
         return
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
-        "| id | vol | タイプ | タイトル | 会場名 | 住所 | connpass URL | ツイートまとめ URL | LTスライド | 参加者数 | 日付 |\n"
-        "|---:|:---:|:---|:---|:---|:---|:---|:---|:---|---:|:---:|\n",
+        "| id | vol | タイプ | タイトル | 実施形態 | 会場名 | 住所 | connpass URL | ツイートまとめ URL | LTスライド | 参加者数 | 日付 | 曜日 | 時間 |\n"
+        "|---:|:---:|:---|:---|:---:|:---|:---|:---|:---|:---|---:|:---:|:---:|:---:|\n",
         encoding="utf-8",
     )
 
@@ -444,9 +562,9 @@ def _existing_connpass_urls(path: Path) -> set[str]:
         if not line.startswith("|"):
             continue
         cols = [c.strip() for c in line.strip("|").split("|")]
-        if len(cols) < 7:
+        if len(cols) < 8:
             continue
-        url = cols[6]
+        url = cols[7]
         if url.startswith("http"):
             urls.add(url)
     return urls
@@ -459,25 +577,36 @@ def _format_cell_links(urls: Iterable[str]) -> str:
     return "<br>".join(urls)
 
 
+def _md_escape_cell(s: str) -> str:
+    # Avoid breaking markdown tables when titles include '|', and normalize newlines.
+    s = (s or "").replace("\r\n", "\n").replace("\r", "\n").replace("\n", " ")
+    return s.replace("|", "&#124;").strip()
+
+
 def append_rows(path: Path, rows: list[EventRow], start_id: int) -> None:
     lines: list[str] = []
     for idx, row in enumerate(rows):
         row_id = start_id + idx
+        tweet_cell = _md_escape_cell(_format_cell_links(row.tweet_urls))
+        slide_cell = _md_escape_cell(_format_cell_links(row.slide_urls))
         lines.append(
             "| "
             + " | ".join(
                 [
                     str(row_id),
-                    row.vol,
-                    row.event_type,
-                    row.title,
-                    row.venue_name,
-                    row.address,
-                    row.connpass_url,
-                    _format_cell_links(row.tweet_urls),
-                    _format_cell_links(row.slide_urls),
+                    _md_escape_cell(row.vol),
+                    _md_escape_cell(row.event_type),
+                    _md_escape_cell(row.title),
+                    _md_escape_cell(row.mode),
+                    _md_escape_cell(row.venue_name),
+                    _md_escape_cell(row.address),
+                    _md_escape_cell(row.connpass_url),
+                    tweet_cell,
+                    slide_cell,
                     str(row.participants),
                     row.date_yyyy_mm_dd,
+                    _md_escape_cell(row.weekday_ja),
+                    _md_escape_cell(row.time_range),
                 ]
             )
             + " |\n"
@@ -494,17 +623,41 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--limit", type=int, default=5, help="number of NEW events to append")
     ap.add_argument("--out", type=str, default="data/iotlt_events.md", help="output markdown file")
     ap.add_argument("--slide-cache", type=str, default="data/slide_url_cache.json", help="JSON cache for slide URL validation")
+    ap.add_argument("--rebuild", action="store_true", help="rebuild the markdown from scratch (overwrites --out)")
     args = ap.parse_args(argv)
 
     out_path = Path(args.out)
     _load_slide_cache(Path(args.slide_cache))
+
+    end_page = (1 if args.rebuild and args.end_page is None else args.start_page) if args.end_page is None else args.end_page
+    if end_page > args.start_page:
+        raise RuntimeError("--end-page must be <= --start-page")
+
+    if args.rebuild:
+        all_rows: list[EventRow] = []
+        seen_urls: set[str] = set()
+        for page in range(args.start_page, end_page - 1, -1):
+            urls = _event_urls_from_list_page(page)
+            if not urls:
+                raise RuntimeError(f"no event URLs found on page={page}")
+            for u in urls:
+                if u in seen_urls:
+                    continue
+                seen_urls.add(u)
+                all_rows.append(_event_row_from_url(u))
+            _save_slide_cache()
+
+        all_rows.sort(key=lambda r: (r.date_yyyy_mm_dd, r.time_range, r.connpass_url))
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text("", encoding="utf-8")
+        _ensure_table_header(out_path)
+        append_rows(out_path, all_rows, 1)
+        _save_slide_cache()
+        return 0
+
     _ensure_table_header(out_path)
     next_id = _next_id_from_file(out_path)
     existing_urls = _existing_connpass_urls(out_path)
-
-    end_page = args.start_page if args.end_page is None else args.end_page
-    if end_page > args.start_page:
-        raise RuntimeError("--end-page must be <= --start-page")
 
     remaining = args.limit
     current_id = next_id
