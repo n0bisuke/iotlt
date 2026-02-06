@@ -16,7 +16,7 @@
 
 ## 実装の入口
 
-- スクレイパー: `scripts/scrape_iotlt_connpass.py`
+- スクレイパー: `scripts/scrape_iotlt_connpass.mjs`
 - 出力: `data/iotlt_events.md`
 - スライド検証キャッシュ: `data/slide_url_cache.json`
 
@@ -87,15 +87,7 @@
 スキーマ変更や抽出ロジック更新後は必ずリビルドする：
 
 ```sh
-python3 scripts/scrape_iotlt_connpass.py --rebuild --start-page 43 --end-page 1 --out data/iotlt_events.md
-```
-
-### 追記（差分取得）
-
-既存ファイルに追記する場合（既に書いた connpass URL はスキップ）：
-
-```sh
-python3 scripts/scrape_iotlt_connpass.py --start-page 43 --end-page 1 --limit 10000 --out data/iotlt_events.md
+node scripts/scrape_iotlt_connpass.mjs --rebuild --start-page auto --end-page 1 --out data/iotlt_events.md
 ```
 
 ## QA（最低限の検証）
@@ -133,4 +125,3 @@ PY
 - **一括リビルド**で再生成できる状態を維持する（小手先の手修正で合わせない）
 - テーブル崩れ（`|`）や URL 誤抽出は最優先で潰す
 - 取得不能フィールドがある場合は、例外で止めずに「空/0/未定」などの合意済みフォールバックを使う
-
