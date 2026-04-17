@@ -429,4 +429,4 @@
 | 427 | vol.11 | ねこIoTLT | 猫の日開催！ ねこIoTLT vol.11 | オンライン | オンライン | オンライン | https://iotlt.connpass.com/event/382493/ |  | https://speakerdeck.com/gesho/mao-mo-fa-gorogoro-noshao-jie<br>https://speakerdeck.com/poropinai1966/20260222nekoiotlt-nekoiotltwohurikaeru | 40 | 2026/02/22 | 日 | 11:30~ |
 | 428 |  | 本体 | 大阪開催！ IoT縛りの勉強会! IoTLT | 対面 | 株式会社エンプレイ | 大阪府大阪市中央区南本町3-2-1 （鈴木康ビル 3F ） | https://iotlt.connpass.com/event/385135/ | https://posfie.com/@n0bisuke/p/OrZOtHN | https://speakerdeck.com/gesho/mao-mo-fa-gorogoro-nomarutikoa | 15 | 2026/02/26 | 木 | 19:00~ |
 | 429 |  | 本体 | IoT縛りの勉強会! IoTLT @JLCPCB オープンハードカンファレンス | 対面 | JLCPCB | 東京都千代田区岩本町3-2-1（ビリーフ岩本町201） | https://iotlt.connpass.com/event/383964/ |  | https://speakerdeck.com/n0bisuke2/openclawhanzuondenotoraburutodebaisuxiang-kenantiyarakuro-number-iotlt-vol133 | 35 | 2026/03/22 | 日 | 11:30~ |
-| 430 |  | 本体 | IoTLT 花見予定会（たぶんBBQ） | 未定 | 未定(都内のどこか) |  | https://iotlt.connpass.com/event/391128/ |  |  | 4 | 2026/04/19 | 日 | 11:00~ |
+| 430 |  | 本体 | IoTLT 花見予定会（たぶんBBQ） | 未定 | 未定(都内のどこか) |  | https://iotlt.connpass.com/event/391128/ |  |  | 7 | 2026/04/19 | 日 | 11:00~ |
