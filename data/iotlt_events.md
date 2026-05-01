@@ -431,4 +431,4 @@
 | 429 |  | 本体 | IoT縛りの勉強会! IoTLT @JLCPCB オープンハードカンファレンス | 対面 | JLCPCB | 東京都千代田区岩本町3-2-1（ビリーフ岩本町201） | https://iotlt.connpass.com/event/383964/ |  | https://speakerdeck.com/n0bisuke2/openclawhanzuondenotoraburutodebaisuxiang-kenantiyarakuro-number-iotlt-vol133 | 35 | 2026/03/22 | 日 | 11:30~ |
 | 430 |  | 本体 | IoTLT 花見予定会（たぶんBBQ） | 未定 | 未定(都内のどこか) |  | https://iotlt.connpass.com/event/391128/ |  | https://speakerdeck.com/miso/arewoareniwan-quan-nimai-meip-muarewozuo-tutemita | 11 | 2026/04/19 | 日 | 11:00~ |
 | 431 | vol.17 | 本体 | 新潟版IoT縛りの勉強会! IoTLT新潟 Vol.17 | 対面 | Sea Point NIIGATA × MOYORe： | 新潟県新潟市中央区花園１－1－21 新潟駅CoCoLo南館 1F | https://iotlt.connpass.com/event/391502/ |  |  | 3 | 2026/05/23 | 土 | 13:30~ |
-| 432 | vol.23 | ビジュアルプログラミングIoTLT | ビジュアルプログラミングIoTLT vol.23 | オンライン | オンライン |  | https://iotlt.connpass.com/event/390201/ | https://togetter.com/li/1470341 |  | 6 | 2026/05/26 | 火 | 20:00~ |
+| 432 | vol.23 | ビジュアルプログラミングIoTLT | ビジュアルプログラミングIoTLT vol.23 | オンライン | オンライン |  | https://iotlt.connpass.com/event/390201/ | https://togetter.com/li/1470341 |  | 7 | 2026/05/26 | 火 | 20:00~ |
