@@ -432,4 +432,4 @@
 | 430 |  | 本体 | IoTLT 花見予定会（たぶんBBQ） | 未定 | 未定(都内のどこか) |  | https://iotlt.connpass.com/event/391128/ |  | https://speakerdeck.com/miso/arewoareniwan-quan-nimai-meip-muarewozuo-tutemita | 11 | 2026/04/19 | 日 | 11:00~ |
 | 431 |  | 本体 | 【積みボード選手権 ep5】- IoTLTラジオ | オンライン | YoutubeのIoTLTチャンネル | オンライン | https://iotlt.connpass.com/event/393834/ |  |  | 10 | 2026/05/21 | 木 | 19:30~ |
 | 432 | vol.17 | 本体 | 新潟版IoT縛りの勉強会! IoTLT新潟 Vol.17 | 対面 | Sea Point NIIGATA × MOYORe： | 新潟県新潟市中央区花園１－1－21 新潟駅CoCoLo南館 1F | https://iotlt.connpass.com/event/391502/ |  |  | 5 | 2026/05/23 | 土 | 13:30~ |
-| 433 | vol.23 | ビジュアルプログラミングIoTLT | ビジュアルプログラミングIoTLT vol.23 | オンライン | オンライン |  | https://iotlt.connpass.com/event/390201/ | https://togetter.com/li/1470341 |  | 7 | 2026/05/26 | 火 | 20:00~ |
+| 433 | vol.23 | ビジュアルプログラミングIoTLT | ビジュアルプログラミングIoTLT vol.23 | オンライン | オンライン |  | https://iotlt.connpass.com/event/390201/ | https://togetter.com/li/1470341 |  | 9 | 2026/05/26 | 火 | 20:00~ |
