@@ -437,4 +437,4 @@
 | 435 | vol.1 | その他 | 【増席】フィジカルAIをゆるく学ぶLT会 - フィジカルAILT vol1 | 対面 | 工作室もくもくはりねずみ | 東京都文京区水道2丁目３番21号 久保田マンションB1F(工作室もくもくはりねずみ) | https://iotlt.connpass.com/event/401413/ | https://posfie.com/@n0bisuke/p/z4pppUx | https://speakerdeck.com/henjin0/forza-horizon-6-noteremetoriji-neng-de-zi-dong-yun-zhuan-nishi-esounaxue-xi-detawoji-meruhua | 14 | 2026/07/31 | 金 | 19:00~ |
 | 436 | vol.138 | 本体 | IoTLTラジオ (IoTLT vol138) | 未定 |  |  | https://iotlt.connpass.com/event/403873/ |  |  | 3 | 2026/08/15 | 土 | 17:00~ |
 | 437 |  | 本体 | IoT縛りの勉強会! IoTLT @JLCPCB オープンハードカンファレンス | 対面 | JLCPCB | 東京都千代田区岩本町3-2-1（ビリーフ岩本町201） | https://iotlt.connpass.com/event/402832/ |  |  | 22 | 2026/09/20 | 日 | 13:30~ |
-| 438 | vol.24 | ビジュアルプログラミングIoTLT | ビジュアルプログラミングIoTLT vol.24 | オンライン | オンライン |  | https://iotlt.connpass.com/event/400538/ | https://togetter.com/li/1470341 |  | 14 | 2026/09/24 | 木 | 20:00~ |
+| 438 | vol.24 | ビジュアルプログラミングIoTLT | ビジュアルプログラミングIoTLT vol.24 | オンライン | オンライン |  | https://iotlt.connpass.com/event/400538/ | https://togetter.com/li/1470341 |  | 17 | 2026/09/24 | 木 | 20:00~ |
