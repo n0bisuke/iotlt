@@ -438,4 +438,4 @@
 | 436 | vol.138 | 本体 | IoTLTラジオ (IoTLT vol138) | 未定 |  |  | https://iotlt.connpass.com/event/403873/ |  |  | 3 | 2026/08/15 | 土 | 17:00~ |
 | 437 |  | 本体 | IoT縛りの勉強会! IoTLT @JLCPCB オープンハードカンファレンス | 対面 | JLCPCB | 東京都千代田区岩本町3-2-1（ビリーフ岩本町201） | https://iotlt.connpass.com/event/402832/ |  |  | 22 | 2026/09/20 | 日 | 13:30~ |
 | 438 | vol.24 | ビジュアルプログラミングIoTLT | ビジュアルプログラミングIoTLT vol.24 | オンライン | オンライン |  | https://iotlt.connpass.com/event/400538/ | https://togetter.com/li/1470341 | https://speakerdeck.com/1ftseabass/2026-09-24-viotlt-vol24 | 20 | 2026/09/24 | 木 | 20:00~ |
-| 439 |  | 本体 | IoT縛りの勉強会! IoTLT @京王ライナー | 未定 |  |  | https://iotlt.connpass.com/event/410319/ |  | https://speakerdeck.com/kitazaki/20261031-iotlt-vol140-kitazaki-v1 | 22 | 2026/10/31 | 土 | 10:30~ |
+| 439 |  | 本体 | IoT縛りの勉強会! IoTLT @京王ライナー | 対面 | 京王ライナー 貸切プラン | 東京都新宿区西新宿1丁目1-4 | https://iotlt.connpass.com/event/410319/ |  | https://speakerdeck.com/robinhood205/hanashikakeru-dakede-reitouko-no-ondo-kanri | 22 | 2026/10/31 | 土 | 10:30~ |
